@@ -1,0 +1,19 @@
+   ▲ Next.js 15.5.24
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 15.5s
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/lib/ai/providers/knowledge-fallback.ts:233:22
+Type error: Property 'customerProfileText' does not exist on type '{ userId?: string | undefined; userName?: string | undefined; userEmail?: string | undefined; userRole?: string | undefined; userPhone?: string | undefined; activeOrders: RawOrderInfo[]; ... 9 more ...; totalUsers?: number | undefined; }'.
+
+[0m [90m 231 |[39m         [36mconst[39m techCount [33m=[39m metrics[33m?[39m[33m.[39mtotalCustomers [33m!==[39m undefined [33m?[39m metrics[33m.[39mtotalCustomers [33m:[39m [32m'?'[39m[33m;[39m
+ [90m 232 |[39m         response [33m+=[39m [32m`• **Daftar Pelanggan**: ${techCount} pelanggan terdaftar\n`[39m[33m;[39m
+[31m[1m>[22m[39m[90m 233 |[39m         [36mif[39m (metrics[33m?[39m[33m.[39mcustomerProfileText) {
+ [90m     |[39m                      [31m[1m^[22m[39m
+ [90m 234 |[39m           [90m// Extract first few profiles from the text[39m
+ [90m 235 |[39m           [36mconst[39m profileLines [33m=[39m metrics[33m.[39mcustomerProfileText[33m.[39msplit([32m'\n'[39m)[33m.[39mslice([35m0[39m[33m,[39m [35m3[39m)[33m;[39m
+ [90m 236 |[39m           response [33m+=[39m [32m`\n${profileLines.join('\n')}`[39m[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

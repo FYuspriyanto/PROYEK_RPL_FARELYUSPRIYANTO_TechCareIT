@@ -1,0 +1,199 @@
+// Prisma schema for IT Service & Computer Repair Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("CUSTOMER") // "ADMIN" | "CUSTOMER"
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  profile         CustomerProfile?
+  orders          ServiceOrder[]
+  aiConversations AiConversation[]
+  notifications   Notification[]
+
+  @@map("users")
+}
+
+model CustomerProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customer_profiles")
+}
+
+model Service {
+  id                String   @id @default(cuid())
+  name              String
+  category          String
+  description       String
+  priceFrom         Float
+  estimatedDuration String
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  orders ServiceOrder[]
+
+  @@map("services")
+}
+
+model Technician {
+  id             String   @id @default(cuid())
+  name           String
+  phone          String
+  specialization String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  assignedOrders ServiceOrder[]
+
+  @@map("technicians")
+}
+
+model ServiceOrder {
+  id                 String      @id @default(cuid())
+  orderNumber        String      @unique
+  customerId         String
+  customer           User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  serviceId          String
+  service            Service     @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  technicianId       String?
+  technician         Technician? @relation(fields: [technicianId], references: [id], onDelete: SetNull)
+  deviceType         String
+  deviceBrand        String
+  deviceModel        String
+  problemDescription String
+  preferredSchedule  String?
+  status             String      @default("REQUESTED") // REQUESTED | DIAGNOSING | WAITING_APPROVAL | IN_PROGRESS | READY | COMPLETED | CANCELLED
+  estimatedCost      Float?
+  finalCost          Float?
+  notes              String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  // Relationships
+  invoice Invoice?
+
+  @@index([customerId])
+  @@index([serviceId])
+  @@index([technicianId])
+  @@index([status])
+  @@map("service_orders")
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique
+  orderId       String   @unique
+  order         ServiceOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  serviceFee    Float    @default(0)
+  spareParts    String?  // JSON: [{name, qty, unitPrice}]
+  subtotal      Float
+  discount      Float    @default(0)
+  total         Float
+  paymentStatus String   @default("UNPAID") // UNPAID | PENDING | PAID | CANCELLED
+  paymentMethod String?  // "Cash" | "Bank Transfer"
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([paymentStatus])
+  @@map("invoices")
+}
+
+model KnowledgeBase {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  category    String
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("knowledge_bases")
+}
+
+model AiConversation {
+  id        String      @id @default(cuid())
+  sessionId String      @unique
+  userId    String?
+  user      User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  messages  AiMessage[]
+
+  @@index([userId])
+  @@map("ai_conversations")
+}
+
+model AiMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String         // "user" | "assistant" | "system"
+  content        String
+  metadata       String?        // JSON string for recommendations, service suggestions
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId])
+  @@map("ai_messages")
+}
+
+model AiConfig {
+  id            String   @id @default(cuid())
+  providerName  String   // Display name: "NVIDIA", "Gemini", "OpenAI", custom
+  providerSlug  String   @unique // Identifier: "nvidia", "gemini", "openai", custom slug
+  apiKey        String   // Encrypted/stored API key
+  model         String   // Model identifier e.g. "nvidia/nemotron-3-super-120b-a12b"
+  baseUrl       String?  // Custom base URL (optional for some providers)
+  isActive      Boolean  @default(false) // Only ONE provider should be active at a time
+  isPrimary     Boolean  @default(false) // The primary provider to use
+  maxTokens     Int      @default(1200)
+  temperature   Float    @default(0.3)
+  timeoutMs     Int      @default(30000) // Request timeout in ms
+  notes         String?  // Admin notes about this config
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("ai_configs")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // ORDER_RECEIVED | DIAGNOSING | ESTIMATE_READY | APPROVAL_NEEDED | IN_PROGRESS | COMPLETED | INVOICE_CREATED | PAYMENT_RECEIVED | NEW_ORDER_ADMIN | CUSTOMER_APPROVAL | PAYMENT_UPDATE
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?  // optional deep link
+  metadata  String?  // JSON: { orderId, invoiceId, orderNumber, ... }
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
