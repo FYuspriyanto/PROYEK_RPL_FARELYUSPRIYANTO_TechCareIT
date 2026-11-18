@@ -7,7 +7,7 @@ mengelola order, teknisi, invoice, dan knowledge base dari satu panel.
 **Tech stack:** Next.js 15 (App Router) · React 19 · Prisma 5 + SQLite · JWT cookie (`jose`) ·
 password hashing (`bcryptjs`) · validasi (`zod`) · AI: Gemini / OpenAI dengan fallback knowledge base.
 
----
+-------
 
 ## 🛡️ 1. Security Improvements (Recent Updates)
 
