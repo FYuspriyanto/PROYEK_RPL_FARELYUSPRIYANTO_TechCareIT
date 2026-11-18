@@ -9,6 +9,279 @@ password hashing (`bcryptjs`) · validasi (`zod`) · AI: Gemini / OpenAI dengan 
 
 -------
 
+## 👨‍💻 1. Identitas Pengembang
+
+Informasi pengembang proyek:
+
+| Informasi | Keterangan |
+| :--- | :--- |
+| **Nama** | Farel Yuspriyanto |
+| **NIM** | 41257104 |
+| **Kelompok** | 3 |
+| **Tema Kelompok** | AD Komputer |
+| **Mata Kuliah** | Rekayasa Perangkat Lunak
+
+---
+
+## 📹 2. Video Demonstrasi Aplikasi
+
+Tautan video demonstrasi alur dan fitur aplikasi TechCare dapat diakses melalui link YouTube berikut:
+
+🔗 **Link Video Demonstrasi:**  
+https://youtu.be/y27HggtgKxk?si=dugfUmyLYFOtTyHc
+
+
+---
+
+## 📖 3. Deskripsi Aplikasi
+
+### 3.1 Latar Belakang & Permasalahan yang Diselesaikan
+Layanan perbaikan komputer konvensional seringkali menghadapi berbagai kendala:
+1. **Ketidakpastian Biaya & Manipulasi Harga:** Pelanggan sering merasa ragu karena biaya perbaikan baru diinformasikan di akhir tanpa persetujuan awal atau rincian suku cadang yang jelas.
+2. **Pencatatan Fisik yang Rentan Hilang:** Penggunaan kuitansi/nota kertas konvensional rawan hilang, rusak, dan menyulitkan pelacakan histori pengerjaan serta klaim garansi.
+3. **Keterbatasan Informasi Status Servis:** Pelanggan harus berulang kali menghubungi pihak bengkel untuk menanyakan apakah unit sudah selesai diperiksa atau diperbaiki.
+4. **Beban Komunikasi & Konsultasi:** Staf bengkel menghabiskan banyak waktu menjawab pertanyaan diagnosa awal dasar yang berulang dari calon pelanggan.
+
+### 3.2 Tujuan Aplikasi
+TechCare hadir sebagai solusi platform digital *end-to-end* yang bertujuan:
+- Memberikan **transparansi total** dalam penetapan estimasi biaya dan suku cadang sebelum pengerjaan dilakukan melalui sistem *Approval Gate*.
+- Menyediakan **pelacakan status pengerjaan secara real-time** dengan alur 7 status yang jelas.
+- Menghadirkan **konsultasi diagnosa cerdas berbasis AI** yang dapat mengenali gejala kerusakan serta memberikan panduan awal secara instan 24/7.
+- Mempermudah **manajemen operasional bengkel** (penugasan teknisi, pembuatan faktur digital, pengelolaan katalog layanan, serta notifikasi terpadu).
+
+### 3.3 Gambaran Umum Cara Kerja Aplikasi
+1. **Pelanggan** mendaftar akun, berkonsultasi via AI Chatbot atau langsung memilih layanan di katalog, kemudian mengisi form pengajuan servis (*Service Request*).
+2. Sistem otomatis membuat tiket pesanan (`REQUESTED`) dan faktur awal (`UNPAID`), serta mengirimkan notifikasi instan ke admin.
+3. **Admin** meninjau pesanan, menugaskan teknisi ahli sesuai spesialisasinya, dan memulai tahap diagnosa (`DIAGNOSING`).
+4. Setelah diagnosa selesai, admin memasukkan estimasi biaya dan suku cadang (`WAITING_APPROVAL`).
+5. **Pelanggan** memeriksa estimasi dan memutuskan untuk **Menyetujui** (status lanjut ke `IN_PROGRESS`) atau **Menolak** (status menjadi `CANCELLED`).
+6. Teknisi menyelesaikan perbaikan hingga perangkat siap diambil (`READY`).
+7. Pelanggan melakukan pembayaran (Cash / Transfer Bank), admin memverifikasi pelunasan invoice (`PAID`), dan unit diserahkan (`COMPLETED`).
+
+---
+
+## 🤖 4. Fitur AI (Artificial Intelligence)
+
+Aplikasi TechCare dilengkapi dengan modul **AI Diagnostic Assistant** yang terintegrasi secara cerdas dengan backend dan database sistem.
+### 4.1 Kemampuan & Fungsi Utama AI
+1. **Diagnosa & Troubleshooting Cerdas:**
+   - AI mampu menganalisis gejala kerusakan hardware/software berdasarkan keluhan bahasa alami pengguna (contoh: *"Laptop lemot"*, *"Laptop cepat panas"*, *"PC mati total"*).
+   - Memberikan langkah-langkah *troubleshooting* mandiri yang aman (seperti *Task Manager*, *Disk Cleanup*, *Power Drain*).
+   - Memberikan peringatan keselamatan dan merekomendasikan penanganan teknisi ahli jika kerusakan berisiko tinggi.
+2. **Rekomendasi Layanan Otomatis:**
+   - Memetakan keluhan pengguna secara langsung dengan paket layanan resmi dari database TechCare beserta estimasi harga dasarnya.
+3. **One-Click Service Booking (Pre-filled Request):**
+   - AI secara otomatis mengekstrak informasi entitas perangkat (tipe, merek, model, dan ringkasan masalah) dari percakapan.
+   - Memunculkan tombol interaktif **[Buat Service Request]** yang mengarahkan pelanggan ke form pengajuan servis dengan data yang telah terisi otomatis.
+4. **Pembacaan Database Real-Time Berbasis Peran (Role-Based DB Grounding):**
+   - **Customer:** AI dapat membaca status pesanan aktif, nomor tiket, teknisi bertugas, dan status tagihan invoice milik akun yang sedang login. AI menolak memberikan data pengguna lain atau data rahasia bengkel.
+   - **Admin:** AI dapat menjawab metrik bisnis global (total pengguna, daftar pelanggan, jumlah teknisi, total pesanan sistem, breakdown status, invoice belum dibayar, serta total pendapatan).
+   - **Guest:** AI melayani pertanyaan umum seputar katalog layanan publik, jam operasional, dan artikel panduan teknis (*Knowledge Base*).
+5. **Panel Konfigurasi Multi-Provider AI (`/admin/ai-config`):**
+   - Admin dapat memilih dan mengatur penyedia AI secara dinamis tanpa perlu mengubah kode atau me-restart server:
+     - **NVIDIA NIM** (Default, model `nvidia/nemotron-3-super-120b-a12b`)
+     - **Google Gemini** (`gemini-2.0-flash`, `gemini-1.5-flash`)
+     - **OpenAI / Groq / Custom LLM** (mendukung endpoint kompatibel OpenAI)
+   - Dilengkapi fitur **Uji Koneksi (Test Connection)** langsung untuk memverifikasi API Key dan latensi respons.
+6. **Local Knowledge Fallback Engine:**
+   - Jika kuota API eksternal habis atau jaringan terputus, sistem secara otomatis beralih ke mesin fallback lokal berbasis artikel *Knowledge Base* database sehingga asisten tidak pernah mati (*fail-safe*).
+
+### 4.2 Manfaat Fitur AI bagi Pengguna
+- **Bagi Pelanggan:** Mendapatkan jawaban instan tanpa antre, memahami perkiraan masalah komputer secara objektif, dan menghemat waktu pengisian formulir servis.
+- **Bagi Admin/Bengkel:** Mengurangi beban kerja tim CS, mempercepat proses konversi konsultasi menjadi pesanan servis nyata, dan mempermudah rekapitulasi data operasional melalui percakapan cepat.
+
+---
+
+## 🚀 5. Fitur-Fitur Utama Aplikasi
+
+Berdasarkan implementasi kode dan skema database riil yang berjalan:
+
+### 5.1 Portal Pelanggan (Customer)
+- **Autentikasi Mandiri:** Registrasi akun baru dan login aman dengan session berbasis cookie HTTP-Only.
+- **Customer Dashboard (`/customer/dashboard`):** Ringkasan tiket servis aktif, notifikasi tindakan tertunda, dan riwayat pesanan.
+- **Pengajuan Servis (`/customer/request`):** Pilihan jenis perangkat (Laptop, PC Desktop, Storage), merek, model, deskripsi keluhan, jadwal preferensi, dan alamat.
+- **Pelacakan Tiket & Timeline Progres (`/customer/orders/[id]`):** Visualisasi alur 7 status pesanan, catatan teknisi, dan invoice terkait.
+- **Gerbang Persetujuan Biaya (Customer Approval Gate):** Tombol aksi *Setujui & Mulai Perbaikan* atau *Tolak Estimasi* saat status pesanan berada pada tahap `WAITING_APPROVAL`.
+- **Faktur Digital Siap Cetak (`/customer/invoices/[id]`):** Rincian biaya jasa, suku cadang (*spare parts*), diskon, informasi rekening bank, konfirmasi transfer, dan cetak faktur PDF.
+- **Pusat Notifikasi (`/customer/notifications`):** Lonceng notifikasi real-time untuk setiap perubahan status pesanan dan penerbitan faktur.
+- **Pengaturan Profil (`/customer/profile`):** Kelola biodata, nomor telepon, alamat, dan ganti kata sandi.
+
+### 5.2 Panel Administrator (Admin)
+- **Executive Dashboard (`/admin/dashboard`):** Kartu metrik live (Total Pelanggan, Request Baru, Servis Aktif, Servis Selesai, Total Pendapatan, dan Tagihan Tertunggak).
+- **Manajemen Pesanan Servis (`/admin/orders`):** Filter status & tanggal, pencarian nomor tiket/pelanggan, penugasan teknisi (*technician assignment*), pembaruan status pengerjaan, serta penetapan estimasi dan biaya final.
+- **Manajemen Invoice & Kasir (`/admin/invoices`):** Penerbitan faktur, penambahan rincian suku cadang pengganti (*JSON spare parts*), diskon, dan verifikasi pelunasan status `PENDING` ➔ `PAID`.
+- **Manajemen Pelanggan (`/admin/customers`):** Direktori data kontak pelanggan dan rekap total pembelanjaan/riwayat servis.
+- **Manajemen Teknisi (`/admin/technicians`):** Tambah, ubah data kontak, atur bidang keahlian (*spesialisasi*), dan aktif/nonaktifkan status teknisi.
+- **Manajemen Katalog Layanan (`/admin/services`):** Tambah, ubah nama, deskripsi, kategori, durasi estimasi, dan harga dasar paket servis.
+- **Pusat Pengetahuan / Knowledge Base (`/admin/knowledge-base`):** Manajemen artikel panduan teknis yang dipublikasikan ke publik dan menjadi sumber pengetahuan fallback AI.
+- **Pusat Konfigurasi AI (`/admin/ai-config`):** Pengaturan dinamis provider LLM, API Key, pemilihan model, pengaturan *temperature*, dan batas token.
+- **Pusat Notifikasi Admin (`/admin/notifications`):** Notifikasi otomatis saat ada order baru masuk, konfirmasi approval biaya dari pelanggan, atau konfirmasi transfer pembayaran.
+
+### 5.3 Sistem Keamanan & Proteksi Data
+- **Session Management:** Autentikasi token JWT (`jose`) tersimpan dalam HTTP-Only Cookie dengan masa berlaku 7 hari.
+- **Enkripsi Kata Sandi:** Hashing kata sandi menggunakan algoritma `bcryptjs` (salt rounds 10).
+- **Proteksi Injeksi Prompt AI:** Sanitasi tag HTML dan filter pola perintah manipulasi prompt pada endpoint chat AI.
+- **Role-Based Access Control (RBAC):** Middleware ketat di tingkat server untuk memproteksi rute `/admin/*` dan memvalidasi kepemilikan data pesanan/invoice per pengguna (mencegah IDOR).
+
+---
+
+## 🛠️ 6. Petunjuk Instalasi & Menjalankan Aplikasi
+
+Ikuti panduan langkah demi langkah di bawah ini untuk menginstal dan menjalankan TechCare di lingkungan lokal (Local Development).
+
+### 6.1 Persyaratan Perangkat Lunak (Prerequisites)
+Pastikan software berikut telah terinstal pada sistem Anda:
+- **Node.js**: Versi LTS 18.x, 20.x, atau 22.x (direkomendasikan Node.js v20+)
+- **NPM**: Versi 9.x atau 10.x (bawaan dari instalasi Node.js)
+- **Git**: (Opsional) untuk cloning repository
+- **Web Browser Modern**: Google Chrome, Mozilla Firefox, Microsoft Edge, atau Safari
+
+### 6.2 Langkah Instalasi & Persiapan
+
+#### 1. Masuk ke Direktori Proyek
+Buka terminal (Command Prompt, PowerShell, atau Bash) lalu navigasikan ke folder proyek:
+```bash
+cd c:\xampp\htdocs\Proyekk
+```
+
+#### 2. Instalasi Dependensi (Dependencies)
+Jalankan perintah berikut untuk mengunduh seluruh package yang tercatat pada `package.json`:
+```bash
+npm install
+```
+#### 3. Konfigurasi Environment Variable (`.env`)
+Salin file konfigurasi environment atau buat file `.env` di root direktori proyek jika belum ada:
+```env
+# Database SQLite Lokal
+DATABASE_URL="file:./dev.db"
+
+# Kunci Rahasia JWT (Minimal 32 karakter untuk sesi produksi)
+JWT_SECRET="super-secret-jwt-key-for-it-services-2026-min-32-chars-length"
+
+# Nama Cookie Sesi
+SESSION_COOKIE_NAME="it_service_session"
+
+# Informasi Aplikasi
+NEXT_PUBLIC_APP_NAME="TechCare AI IT Services"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Mode Lingkungan (development atau production)
+NODE_ENV="development"
+PORT=3000
+
+# Konfigurasi Provider AI (Opsional via env, dapat diatur via Panel Admin)
+AI_PROVIDER="nvidia"
+NVIDIA_API_KEY=""
+NVIDIA_MODEL="nvidia/nemotron-3-super-120b-a12b"
+GEMINI_API_KEY=""
+```
+
+#### 4. Sinkronisasi Database (Prisma ORM)
+Sinkronisasikan skema Prisma ke database lokal SQLite (`prisma/dev.db`):
+```bash
+npm run db:push
+```
+*Atau lakukan generate client:*
+```bash
+npm run db:generate
+```
+
+#### 5. Pengisian Data Awal / Demo (Database Seeding)
+Jalankan proses seeding untuk mengisi data akun pengujian, katalog layanan awal, teknisi, pesanan sampel, dan knowledge base:
+```bash
+npm run db:seed
+```
+
+---
+
+### 6.3 Menjalankan Aplikasi
+
+#### Mode Pengembangan (Development Mode):
+```bash
+npm run dev
+```
+Aplikasi akan dijalankan pada server lokal: **http://localhost:3000**
+
+#### Mode Produksi (Production Build & Start):
+```bash
+npm run build
+npm run start
+```
+
+---
+
+### 6.4 Cara Mengakses Aplikasi & Akun Pengujian (Demo Accounts)
+
+Buka peramban (browser) dan akses alamat:
+👉 **[http://localhost:3000](http://localhost:3000)**
+
+Gunakan akun demo berikut untuk menguji masing-masing hak akses:
+
+| Role Akun | Email | Password | Akses & Fitur |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin@techcare.id` | `AdminPassword123!` | Akses penuh dashboard admin (`/admin/dashboard`), manajemen order, teknisi, invoice, dan konfigurasi AI. |
+| **Customer 1** | `budi@gmail.com` | `Customer123!` | Akses portal pelanggan, 2 pesanan aktif, histori invoice, dan konsultasi AI pribadi. |
+| **Customer 2** | `siti@gmail.com` | `Customer123!` | Akses portal pelanggan dengan contoh pesanan motherboard & OS. |
+| **Customer 3** | `hendra@gmail.com` | `Customer123!` | Akses portal pelanggan dengan contoh servis data recovery storage. |
+
+---
+
+## 📁 7. Struktur Direktori Proyek
+
+```
+c:\xampp\htdocs\Proyekk
+├── prisma/
+│   ├── dev.db                      # File Database SQLite lokal
+│   ├── schema.prisma               # Definisi skema tabel & relasi data
+│   ├── seed.ts                     # Seeder data pengguna, teknisi, & pesanan
+│   └── seed-ai-config.mjs          # Seeder konfigurasi provider AI awal
+├── src/
+│   ├── app/                        # Next.js 15 App Router (Halaman & Endpoint API)
+│   │   ├── (auth)/                 # Halaman login & register
+│   │   ├── admin/                  # Seluruh halaman panel administrator
+│   │   │   ├── ai-config/          # Manajemen provider & API key AI
+│   │   │   ├── customers/          # Direktori & riwayat customer
+│   │   │   ├── dashboard/          # KPI & overview operasional
+│   │   │   ├── invoices/           # Billing & faktur digital
+│   │   │   ├── knowledge-base/     # Manajemen artikel troubleshooting
+│   │   │   ├── orders/             # Pemrosesan tiket pesanan & assign teknisi
+│   │   │   ├── services/           # Manajemen katalog paket servis
+│   │   │   └── technicians/        # Manajemen data staf teknisi
+│   │   ├── api/                    # REST API Routes backend
+│   │   │   ├── admin/              # Endpoint API khusus otorisasi admin
+│   │   │   ├── ai/                 # Endpoint percakapan chat & histori AI
+│   │   │   ├── auth/               # Endpoint autentikasi (login, register, logout)
+│   │   │   ├── invoices/           # Endpoint penagihan & konfirmasi pembayaran
+│   │   │   ├── notifications/      # Endpoint sistem notifikasi
+│   │   │   └── orders/             # Endpoint pesanan & persetujuan estimasi biaya
+│   │   ├── customer/               # Seluruh halaman portal pelanggan
+│   │   │   ├── ai/                 # Antarmuka chatbot diagnosa cerdas
+│   │   │   ├── dashboard/          # Dashboard ringkasan pelanggan
+│   │   │   ├── invoices/           # Tampilan & cetak faktur pelanggan
+│   │   │   ├── orders/             # Pelacakan status tiket servis 7 tahap
+│   │   │   ├── profile/            # Pengaturan profil pengguna
+│   │   │   └── request/            # Formulir pemesanan servis baru
+│   │   └── services/               # Halaman katalog publik & detail paket servis
+│   ├── components/                 # Komponen UI modular (Navbar, NotificationBell, Timeline, dll.)
+│   ├── lib/                        # Utility & business logic backend
+│   │   ├── ai/                     # AI Service, Context Builder, Dynamic & Fallback Providers
+│   │   ├── notifications/          # Notification Service modular (In-App, WA, Telegram)
+│   │   ├── auth.ts                 # Enkripsi bcrypt & manajemen sesi JWT
+│   │   └── prisma.ts               # Inisialisasi Prisma Client singleton
+│   └── middleware.ts               # Route guard otentikasi & proteksi hak akses role
+├── package.json                    # Metadata proyek & daftar dependensi
+├── PRD.md                          # Product Requirement Document versi komprehensif
+└── README.md                       # Dokumentasi utama proyek
+```
+
+---
+
+## 📄 8. Lisensi & Hak Cipta
+
+Proyek ini dikembangkan untuk keperluan akademik dan demonstrasi aplikasi pada program studi Rekayasa Perangkat Lunak / Teknik Komputer.  
+**TechCare IT Solutions © 2026. Hak Cipta Dilindungi.**
+
+
 ## 🛡️ 1. Security Improvements (Recent Updates)
 
 This project has undergone a security audit and the following improvements were implemented:
